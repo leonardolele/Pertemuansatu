@@ -78,4 +78,4 @@ public class Mahasiswa extends RealmObject {
                 ", Prodi='" + Prodi + '\'' +
                 '}';
     }
-}}
+}

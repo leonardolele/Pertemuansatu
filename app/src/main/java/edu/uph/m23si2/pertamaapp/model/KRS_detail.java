@@ -48,4 +48,4 @@ public class KRS_detail extends RealmObject {
                 ", kelasMatkul=" + (kelasMatkul != null ? kelasMatkul.getIdKelas() : "null") +
                 '}';
     }
-}}
+}
