@@ -1,11 +1,9 @@
 package edu.uph.m23si2.pertamaapp.model;
 
-import java.security.PrivateKey;
-
-public class Provinsi {
+public class Kabupaten {
     private String code, name;
 
-    public Provinsi(String code, String name) {
+    public Kabupaten(String code, String name) {
         this.code = code;
         this.name = name;
     }

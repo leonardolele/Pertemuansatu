@@ -1,30 +1,39 @@
 package edu.uph.m23si2.pertamaapp.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 public class KRS extends RealmObject {
     @PrimaryKey
-    private int idKrs;
+    private int krsID;
+    private int Semester;
+    private String TahunAjaran;
     private Mahasiswa mahasiswa;
-    private Integer semester;
 
-    public KRS(Integer idKrs, Mahasiswa mahasiswa, Integer semester) {
-        this.idKrs = idKrs;
-        this.mahasiswa = mahasiswa;
-        this.semester = semester;
+    public KRS(){}
+
+    public int getKrsID() {
+        return krsID;
     }
 
-    // Getter & Setter
-    public Integer getIdKrs() {
-        return idKrs;
+    public void setKrsID(int krsID) {
+        this.krsID = krsID;
     }
 
-    public void setIdKrs(Integer idKrs) {
-        this.idKrs = idKrs;
+    public int getSemester() {
+        return Semester;
+    }
+
+    public void setSemester(int semester) {
+        Semester = semester;
+    }
+
+    public String getTahunAjaran() {
+        return TahunAjaran;
+    }
+
+    public void setTahunAjaran(String tahunAjaran) {
+        TahunAjaran = tahunAjaran;
     }
 
     public Mahasiswa getMahasiswa() {
@@ -33,22 +42,5 @@ public class KRS extends RealmObject {
 
     public void setMahasiswa(Mahasiswa mahasiswa) {
         this.mahasiswa = mahasiswa;
-    }
-
-    public Integer getSemester() {
-        return semester;
-    }
-
-    public void setSemester(Integer semester) {
-        this.semester = semester;
-    }
-
-    @Override
-    public String toString() {
-        return "KRS{" +
-                "idKrs='" + idKrs + '\'' +
-                ", mahasiswa=" + mahasiswa.getNama() +
-                ", semester='" + semester + '\'' +
-                '}';
     }
 }

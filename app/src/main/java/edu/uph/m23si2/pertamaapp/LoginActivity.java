@@ -21,7 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uph.m23si2.pertamaapp.api.ApiResponse;
+import edu.uph.m23si2.pertamaapp.api.ApiResponseKabupaten;
 import edu.uph.m23si2.pertamaapp.api.ApiService;
+import edu.uph.m23si2.pertamaapp.model.KRS;
+import edu.uph.m23si2.pertamaapp.model.KRSDetail;
+import edu.uph.m23si2.pertamaapp.model.Kabupaten;
+import edu.uph.m23si2.pertamaapp.model.KelasMatakuliah;
 import edu.uph.m23si2.pertamaapp.model.Mahasiswa;
 import edu.uph.m23si2.pertamaapp.model.Matakuliah;
 import edu.uph.m23si2.pertamaapp.model.Prodi;
@@ -37,10 +42,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     EditText edtNama, edtPassword;
-    Spinner sprProvinsi;
+    Spinner sprProvinsi, sprKabupaten;
     List<Provinsi> provinsiList =  new ArrayList<>();
     List<String> namaProvinsi = new ArrayList<>();
-    ArrayAdapter<String> adapter;
+    List<Kabupaten> kabupatenList = new ArrayList<>();
+    List<String> namaKabupaten = new ArrayList<>();
+    ArrayAdapter<String> adapter, adapterKabupaten;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,12 @@ public class LoginActivity extends AppCompatActivity {
         adapter =new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,namaProvinsi);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         sprProvinsi.setAdapter(adapter);
+
+        sprKabupaten = findViewById(R.id.sprKabupaten);
+        adapterKabupaten = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, namaKabupaten);
+        adapterKabupaten.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        sprKabupaten.setAdapter(adapterKabupaten);
+
         //init retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://wilayah.id")
@@ -92,9 +105,42 @@ public class LoginActivity extends AppCompatActivity {
                     sprProvinsi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            Provinsi selected = provinsiList.get(position);
-                            Log.d("Provinsi", selected.getCode() + " - " + selected.getName());
+                            Provinsi selectedProvinsi = provinsiList.get(position);
+                            Log.d("Provinsi", selectedProvinsi.getCode() + " - " + selectedProvinsi.getName());
 
+                            // Panggil API kabupaten sesuai kode provinsi
+                            apiService.getKabupaten(selectedProvinsi.getCode()).enqueue(new Callback<ApiResponseKabupaten>() {
+                                @Override
+                                public void onResponse(Call<ApiResponseKabupaten> call, Response<ApiResponseKabupaten> response) {
+                                    if(response.isSuccessful() && response.body()!=null){
+                                        kabupatenList = response.body().getData();
+                                        namaKabupaten.clear();
+                                        for(Kabupaten k : kabupatenList){
+                                            if(k.getName()!=null){
+                                                Log.d("Kabupaten", k.getName());
+                                                namaKabupaten.add(k.getName());
+                                            }
+                                        }
+                                        adapterKabupaten.notifyDataSetChanged();
+
+                                        sprKabupaten.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                            @Override
+                                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                Kabupaten selectedKabupaten = kabupatenList.get(position);
+                                                Log.d("Kabupaten", selectedKabupaten.getCode() + " - " + selectedKabupaten.getName());
+                                            }
+
+                                            @Override
+                                            public void onNothingSelected(AdapterView<?> parent) { }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ApiResponseKabupaten> call, Throwable t) {
+                                    Toast.makeText(LoginActivity.this,"Gagal : "+t.getMessage(),Toast.LENGTH_LONG).show();
+                                }
+                            });
                         }
 
                         @Override
@@ -109,6 +155,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this,"Gagal :"+t.getMessage(),Toast.LENGTH_LONG);
             }
         });
+
 
         btnLogin = findViewById(R.id.btnLogin);
         edtNama = findViewById(R.id.edtNama);
@@ -142,6 +189,28 @@ public class LoginActivity extends AppCompatActivity {
             matPBO.setNama("Pemrograman Berorientasi Objek");
             matPBO.setSks(3);
             matPBO.setProdi(prodiSI);
+
+            KelasMatakuliah kelasMobile = r.createObject(KelasMatakuliah.class,0);
+            kelasMobile.setRuangKelas("AD101");
+            kelasMobile.setDosen("Sir Ade");
+
+            KelasMatakuliah kelasPBO = r.createObject(KelasMatakuliah.class,1);
+            kelasPBO.setRuangKelas("AD102");
+            kelasPBO.setDosen("Sir Des");
+
+            KRS krs1 = r.createObject(KRS.class,0);
+            krs1.setSemester(6);
+            krs1.setTahunAjaran("2024/2025");
+
+            KRSDetail detail1 = r.createObject(KRSDetail.class,0);
+            detail1.setKrs(krs1);
+            detail1.setKelasMatakuliah(kelasMobile);
+            detail1.setStatus("Diambil");
+
+            KRSDetail detail2 = r.createObject(KRSDetail.class,1);
+            detail2.setKrs(krs1);
+            detail2.setKelasMatakuliah(kelasPBO);
+            detail2.setStatus("Diambil");
 
         });
         Toast.makeText(this, "Data tersimpan", Toast.LENGTH_SHORT).show();
